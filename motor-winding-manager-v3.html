@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a56db">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="لف المحركات">
+<link rel="manifest" id="pwaManifest">
+<title>مدير لف المحركات ⚡</title>
+<style>
+/* ═══════════════════════════════════
+   TOKENS — LIGHT MODE
+═══════════════════════════════════ */
+:root{
+  --bg:#f5f7fa; --surface:#fff; --surface2:#f0f2f6; --surface3:#e8ecf4;
+  --border:#e0e4ec; --border2:#c8cedb;
+  --primary:#1a56db; --primary-light:#ebf2ff; --primary-dark:#1341a8;
+  --accent:#0e9f6e; --accent-light:#e3f9f0;
+  --warn:#e3a008; --warn-light:#fef3c7;
+  --danger:#e02424; --danger-light:#fde8e8;
+  --purple:#7c3aed; --purple-light:#ede9fe;
+  --info:#0ea5e9; --info-light:#e0f2fe;
+  --text:#111827; --text2:#4b5563; --text3:#9ca3af;
+  --radius:10px; --radius-sm:6px; --radius-lg:14px;
+  --shadow:0 1px 4px rgba(0,0,0,.08); --shadow-md:0 4px 20px rgba(0,0,0,.11);
+  --font:'Segoe UI','Cairo',Arial,sans-serif;
+  --header-h:52px; --nav-h:58px;
+}
+/* DARK MODE */
+[data-theme="dark"]{
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f45;
+  --border:#2e3348; --border2:#3d4460;
+  --primary:#3b82f6; --primary-light:#1e3a5f; --primary-dark:#2563eb;
+  --accent:#10b981; --accent-light:#0c3d2e;
+  --warn:#f59e0b; --warn-light:#3d2e0a;
+  --danger:#f87171; --danger-light:#3d1212;
+  --purple:#a78bfa; --purple-light:#2e1d5e;
+  --info:#38bdf8; --info-light:#0c2d3d;
+  --text:#f1f5f9; --text2:#94a3b8; --text3:#475569;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;transition:background .2s,color .2s}
+button{cursor:pointer;font-family:var(--font);font-size:14px;border:none;outline:none;transition:.15s}
+input,select,textarea{font-family:var(--font);font-size:14px;color:var(--text);outline:none;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;width:100%;background:var(--surface);transition:.15s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.14)}
+label{font-size:13px;color:var(--text2);font-weight:500;display:block;margin-bottom:4px}
+h1{font-size:20px;font-weight:700}h2{font-size:16px;font-weight:600}h3{font-size:14px;font-weight:600}
+a{color:var(--primary);text-decoration:none}
+
+/* ═══ HEADER ═══ */
+.header{background:var(--primary);color:#fff;padding:0 14px;height:var(--header-h);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.header h1{color:#fff;font-size:15px;line-height:1.2}
+.header-sub{font-size:10px;opacity:.7;margin-top:1px}
+.header-actions{display:flex;gap:5px;align-items:center}
+.theme-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px}
+.theme-btn:hover{background:rgba(255,255,255,.25)}
+
+/* ═══ BOTTOM NAV ═══ */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1.5px solid var(--border);display:flex;z-index:100;height:var(--nav-h);padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;padding:8px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--text3);background:none;border-right:1px solid var(--border)}
+.nav-btn:last-child{border-right:none}
+.nav-btn.active{color:var(--primary)}
+.nav-btn.active svg{stroke:var(--primary)}
+.nav-btn svg{width:20px;height:20px;stroke:var(--text3);transition:.15s}
+.nav-badge{background:var(--danger);color:#fff;font-size:9px;border-radius:10px;padding:1px 5px;position:absolute;top:6px;font-weight:700}
+.nav-btn-wrap{position:relative;display:flex;justify-content:center}
+
+/* ═══ MAIN ═══ */
+.main{padding:10px 10px calc(var(--nav-h) + 10px)}
+
+/* ═══ CARDS ═══ */
+.motor-card{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:12px;margin-bottom:10px;box-shadow:var(--shadow);transition:border-color .15s,transform .1s}
+.motor-card:active{transform:scale(.99)}
+.motor-card.selected{border-color:var(--primary);background:var(--primary-light)}
+.motor-card.has-alert{border-color:var(--warn);border-width:2px}
+.motor-badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block}
+.badge-220{background:#dbeafe;color:#1d4ed8}
+.badge-380{background:#fef3c7;color:#92400e}
+[data-theme="dark"] .badge-220{background:#1e3a5f;color:#93c5fd}
+[data-theme="dark"] .badge-380{background:#3d2e0a;color:#fcd34d}
+.motor-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.meta-chip{font-size:11px;color:var(--text2);background:var(--surface2);padding:2px 7px;border-radius:4px;border:1px solid var(--border)}
+.motor-actions{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap}
+.alert-badge{background:var(--warn-light);color:var(--warn);border:1px solid var(--warn);font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600}
+
+/* ═══ BUTTONS ═══ */
+.btn{padding:7px 12px;border-radius:var(--radius-sm);font-weight:500;transition:.15s;display:inline-flex;align-items:center;gap:4px;font-size:13px}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark)}
+.btn-success{background:var(--accent);color:#fff}.btn-success:hover{opacity:.9}
+.btn-purple{background:var(--purple);color:#fff}.btn-purple:hover{opacity:.9}
+.btn-warn{background:var(--warn);color:#fff}
+.btn-info{background:var(--info);color:#fff}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+.btn-danger{background:transparent;border:1.5px solid var(--danger);color:var(--danger)}.btn-danger:hover{background:var(--danger-light)}
+.btn-sm{padding:4px 9px;font-size:12px}
+.btn-block{width:100%;justify-content:center}
+.btn-icon{width:32px;height:32px;padding:0;border-radius:var(--radius-sm);display:inline-flex;align-items:center;justify-content:center;background:var(--surface2);border:1.5px solid var(--border);color:var(--text2);font-size:15px}
+.btn-icon:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+
+/* ═══ SEARCH ═══ */
+.search-wrap{position:relative;margin-bottom:8px}
+.search-wrap input{padding-right:36px;background:var(--surface)}
+.search-icon{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.search-advanced{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px;display:none}
+.search-advanced.open{display:block}
+.adv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:360px){.adv-grid{grid-template-columns:1fr}}
+
+/* ═══ FILTER BAR ═══ */
+.filter-bar{display:flex;gap:5px;margin-bottom:10px;overflow-x:auto;padding-bottom:3px;-webkit-overflow-scrolling:touch}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-chip{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);white-space:nowrap;transition:.15s;flex-shrink:0}
+.filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ═══ COMPARE BAR ═══ */
+.compare-bar-inner{background:var(--warn-light);border:1.5px solid var(--warn);border-radius:var(--radius);padding:9px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+
+/* ═══ FORM ═══ */
+.form-row{margin-bottom:11px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:460px){.form-grid{grid-template-columns:1fr}}
+
+/* ═══ SECTIONS ═══ */
+.section{border:1.5px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.section-head{padding:9px 12px;background:var(--surface2);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.section-head h3{font-size:13px;display:flex;align-items:center;gap:6px}
+.section-body{padding:12px;display:none}.section-body.open{display:block}
+.chevron{transition:.2s;display:inline-block;color:var(--text3)}
+.section-head.open .chevron{transform:rotate(180deg)}
+
+/* ═══ GROUPS ═══ */
+.groups-wrap{margin-top:8px}
+.group-row{display:grid;grid-template-columns:26px 1fr 1fr 1fr 1fr 28px;gap:5px;align-items:center;margin-bottom:5px}
+@media(max-width:460px){.group-row{grid-template-columns:22px 1fr 1fr 1fr;gap:4px}}
+.group-num{text-align:center;font-weight:700;color:var(--text2);font-size:12px;background:var(--surface2);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center}
+.hide-mobile{display:block}
+@media(max-width:460px){.hide-mobile{display:none}}
+
+/* ═══ DETAIL ═══ */
+.detail-section{margin-bottom:14px}
+.detail-section h3{font-size:13px;font-weight:600;color:var(--primary);margin-bottom:7px;padding-bottom:3px;border-bottom:2px solid var(--primary-light)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+@media(max-width:380px){.detail-grid{grid-template-columns:1fr}}
+.detail-item{background:var(--surface2);border-radius:var(--radius-sm);padding:7px 9px}
+.di-label{font-size:11px;color:var(--text3);margin-bottom:1px}
+.di-val{font-size:13px;font-weight:600;color:var(--text)}
+.groups-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+.groups-table th{background:var(--primary);color:#fff;padding:5px 7px;text-align:right;font-weight:500}
+.groups-table td{padding:5px 7px;border-bottom:1px solid var(--border)}
+.groups-table tr:last-child td{border-bottom:none}
+.groups-table tr:nth-child(even) td{background:var(--surface2)}
+
+/* ═══ CALC ═══ */
+.calc-box{background:var(--accent-light);border:1.5px solid var(--accent);border-radius:var(--radius);padding:12px;margin-top:10px}
+.calc-box h3{color:var(--accent);font-size:13px;margin-bottom:8px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.calc-item{background:var(--surface);border-radius:var(--radius-sm);padding:7px 10px;border:1px solid var(--border)}
+.c-lbl{font-size:11px;color:var(--text3)}
+.c-val{font-size:15px;font-weight:700;color:var(--accent)}
+.c-unit{font-size:11px;color:var(--text2)}
+
+/* ═══ ALERTS ═══ */
+.alerts-section{background:var(--warn-light);border:1.5px solid var(--warn);border-radius:var(--radius);padding:12px;margin-bottom:12px}
+.alerts-section h3{color:var(--warn);font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.alert-item{background:var(--surface);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:6px;font-size:12px;border-right:3px solid var(--warn);cursor:pointer}
+.alert-item:last-child{margin-bottom:0}
+.alert-item strong{display:block;font-size:13px;margin-bottom:2px;color:var(--text)}
+.alert-item span{color:var(--text2)}
+
+/* ═══ ANALYTICS ═══ */
+.analytics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+@media(min-width:500px){.analytics-grid{grid-template-columns:repeat(4,1fr)}}
+.kpi-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center}
+.kpi-num{font-size:24px;font-weight:800;color:var(--primary);line-height:1.1}
+.kpi-lbl{font-size:11px;color:var(--text3);margin-top:2px}
+.kpi-sub{font-size:12px;color:var(--text2);margin-top:3px}
+.chart-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px}
+.chart-wrap h3{font-size:13px;color:var(--text2);margin-bottom:10px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.bar-row .bar-lbl{width:90px;color:var(--text2);text-align:right;flex-shrink:0;font-size:11px}
+.bar-track{flex:1;background:var(--surface2);border-radius:4px;height:18px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-right:6px;font-size:11px;font-weight:600;color:#fff;transition:width .6s ease;min-width:20px;justify-content:flex-end}
+.bar-count{width:24px;text-align:left;font-weight:600;color:var(--text);font-size:12px}
+.pie-wrap{display:flex;justify-content:center;gap:16px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.pie-legend{font-size:12px;color:var(--text2)}
+.pie-legend-item{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.pie-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.history-list{font-size:12px}
+.history-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.history-item:last-child{border-bottom:none}
+.history-icon{font-size:16px;width:24px;text-align:center}
+.history-info{flex:1}
+.history-time{font-size:11px;color:var(--text3)}
+
+/* ═══ COMPARE ═══ */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.compare-col{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.compare-col-head{padding:8px 10px;font-weight:600;font-size:13px;text-align:center}
+.compare-row{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;font-size:12px;border-bottom:1px solid var(--border)}
+.compare-row:last-child{border-bottom:none}
+.cr-lbl{color:var(--text3);font-size:11px}
+.cr-val{font-weight:600;font-size:12px}
+.compare-diff-better{background:#dcfce7}
+.compare-diff-worse{background:#fee2e2}
+[data-theme="dark"] .compare-diff-better{background:#0c3d2e}
+[data-theme="dark"] .compare-diff-worse{background:#3d1212}
+
+/* ═══ TEMPLATES ═══ */
+.tpl-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.tpl-card:hover{border-color:var(--primary);background:var(--primary-light)}
+.tpl-card h3{font-size:13px;margin-bottom:3px}
+.tpl-card p{font-size:11px;color:var(--text2)}
+
+/* ═══ MISC ═══ */
+.empty{text-align:center;padding:36px 16px;color:var(--text3)}
+.empty-icon{font-size:44px;margin-bottom:10px;opacity:.35}
+.backup-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.backup-card h3{margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.toast{position:fixed;bottom:calc(var(--nav-h) + 6px);left:50%;transform:translateX(-50%) translateY(14px);background:#111827;color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;max-width:92vw;text-align:center}
+[data-theme="dark"] .toast{background:#e2e8f0;color:#111827}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center;padding:0}
+@media(min-width:500px){.modal-overlay{align-items:center;padding:10px}}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius-lg) var(--radius-lg) 0 0;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+@media(min-width:500px){.modal{border-radius:var(--radius-lg)}}
+.modal-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1}
+.modal-body{padding:14px}
+.screen{display:none}.screen.active{display:block}
+.stats-bar{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:3px}
+.stats-bar::-webkit-scrollbar{display:none}
+.stat-chip{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:7px 11px;min-width:70px;text-align:center;flex-shrink:0}
+.s-num{font-size:19px;font-weight:700;color:var(--primary)}
+.s-lbl{font-size:10px;color:var(--text3)}
+.volt-toggle{display:flex;border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:12px}
+.volt-btn{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:600;background:none;border:none;color:var(--text2)}
+.volt-btn.active{background:var(--primary);color:#fff}
+.required::after{content:" *";color:var(--danger)}
+
+/* ═══ HISTORY LOG CHIP ═══ */
+.log-chip{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 6px;border-radius:10px;font-weight:600}
+.log-add{background:#dcfce7;color:#166534}
+.log-edit{background:#dbeafe;color:#1e40af}
+.log-del{background:#fee2e2;color:#991b1b}
+[data-theme="dark"] .log-add{background:#0c3d2e;color:#6ee7b7}
+[data-theme="dark"] .log-edit{background:#1e3a5f;color:#93c5fd}
+[data-theme="dark"] .log-del{background:#3d1212;color:#fca5a5}
+
+/* ═══ PWA INSTALL BANNER ═══ */
+.install-banner{background:var(--primary-light);border:1.5px solid var(--primary);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.install-banner p{flex:1;font-size:12px;color:var(--primary-dark)}
+[data-theme="dark"] .install-banner p{color:var(--text)}
+
+/* ═══ PRINT ═══ */
+@media print{
+  .header,.bottom-nav,.motor-actions,.btn,button,.no-print,.filter-bar,.stats-bar,.search-wrap{display:none!important}
+  .main{padding:0!important}
+  body{background:#fff;color:#000}
+  .print-header{display:block!important}
+  .detail-item{border:1px solid #ccc!important;background:#f9f9f9!important}
+  .groups-table th{background:#333!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .detail-section h3{color:#111!important;border-bottom-color:#ccc!important}
+  .calc-box{background:#f0fff4!important;border-color:#ccc!important;-webkit-print-color-adjust:exact}
+}
+.print-header{display:none;text-align:center;padding:16px 0;border-bottom:2px solid #333;margin-bottom:18px}
+.print-header h2{font-size:20px;font-weight:700}
+.print-header p{font-size:12px;color:#666;margin-top:3px}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <h1>⚡ مدير لف المحركات</h1>
+    <div class="header-sub" id="headerSub">جاري التحميل...</div>
+  </div>
+  <div class="header-actions">
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="تغيير المظهر">🌙</button>
+    <button class="btn-icon" onclick="openTemplatesModal()" title="قوالب">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    </button>
+    <button class="btn-icon" onclick="showPrint()" title="طباعة">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ══ SCREEN: LIST ══ -->
+  <div class="screen active" id="screenList">
+    <div id="pwaBanner" style="display:none" class="install-banner">
+      <span style="font-size:22px">📱</span>
+      <p>ثبّت التطبيق على هاتفك للعمل بدون إنترنت</p>
+      <button class="btn btn-primary btn-sm" onclick="installPWA()">تثبيت</button>
+      <button class="btn-icon" style="border:none;background:none;font-size:18px" onclick="document.getElementById('pwaBanner').style.display='none'">✕</button>
+    </div>
+
+    <div id="alertsWrap"></div>
+
+    <div class="stats-bar" id="statsBar"></div>
+
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <div class="search-wrap" style="flex:1;margin-bottom:0">
+        <input type="text" id="searchInput" placeholder="بحث سريع..." oninput="renderList()">
+        <div class="search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+      </div>
+      <button class="btn-icon" onclick="toggleAdvSearch()" title="بحث متقدم">⚙️</button>
+    </div>
+
+    <div class="search-advanced" id="advSearch">
+      <div class="adv-grid">
+        <div><label>ترتيب حسب</label>
+          <select id="sortBy" onchange="renderList()">
+            <option value="newest">الأحدث أولاً</option>
+            <option value="oldest">الأقدم أولاً</option>
+            <option value="name">الاسم أبجدياً</option>
+            <option value="type">النوع</option>
+          </select>
+        </div>
+        <div><label>قطر السلك (تشغيل)</label>
+          <select id="filterWire" onchange="renderList()">
+            <option value="">الكل</option>
+            <option value="thin">رفيع (أقل من 0.4)</option>
+            <option value="medium">متوسط (0.4 – 0.6)</option>
+            <option value="thick">سميك (أكبر من 0.6)</option>
+          </select>
+        </div>
+        <div><label>عدد المجاري</label>
+          <select id="filterSlots" onchange="renderList()">
+            <option value="">الكل</option>
+            <option value="24">24 مجرى</option>
+            <option value="36">36 مجرى</option>
+            <option value="48">48 مجرى</option>
+          </select>
+        </div>
+        <div><label>البيانات المتوفرة</label>
+          <select id="filterData" onchange="renderList()">
+            <option value="">الكل</option>
+            <option value="complete">مكتمل (تشغيل + تقويم + حديد)</option>
+            <option value="run">بملفات تشغيل</option>
+            <option value="iron">ببيانات الحديد</option>
+            <option value="elec">ببيانات كهربائية</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="clearAdvSearch()">مسح الفلاتر</button>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-chip active" data-filter="all" onclick="setFilter(this,'all')">الكل</button>
+      <button class="filter-chip" data-filter="220" onclick="setFilter(this,'220')">220V</button>
+      <button class="filter-chip" data-filter="380" onclick="setFilter(this,'380')">380V</button>
+      <button class="filter-chip" data-filter="fan" onclick="setFilter(this,'fan')">مراوح</button>
+      <button class="filter-chip" data-filter="pump" onclick="setFilter(this,'pump')">مضخات</button>
+      <button class="filter-chip" data-filter="wash" onclick="setFilter(this,'wash')">غسالات</button>
+      <button class="filter-chip" data-filter="ac" onclick="setFilter(this,'ac')">مكيفات</button>
+    </div>
+
+    <div id="compareBarWrap"></div>
+    <div id="motorList"></div>
+  </div>
+
+  <!-- ══ SCREEN: FORM ══ -->
+  <div class="screen" id="screenForm">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h2 id="formTitle">إضافة موتور</h2>
+      <button class="btn btn-outline btn-sm" onclick="showScreen('list')">← رجوع</button>
+    </div>
+
+    <div class="section">
+      <div class="section-head open" onclick="toggleSection(this)"><h3>🔧 المعلومات الأساسية</h3><span class="chevron">▼</span></div>
+      <div class="section-body open">
+        <div class="form-row">
+          <label class="required">نوع الموتور</label>
+          <select id="f_motorType" onchange="checkCustomType()">
+            <option value="">-- اختر --</option>
+            <option>موتور مروحة</option><option>موتور مياه (طلمبة)</option>
+            <option>موتور غسالة</option><option>موتور مكيف</option>
+            <option>موتور مضخة</option><option>موتور ثلاجة</option>
+            <option>موتور مصعد</option><option>موتور آخر</option>
+          </select>
+        </div>
+        <div class="form-row" id="customTypeRow" style="display:none">
+          <label>اسم الموتور (تحديد)</label>
+          <input type="text" id="f_motorTypeCustom" placeholder="مثال: موتور خلاط">
+        </div>
+        <div class="form-row">
+          <label class="required">الجهد</label>
+          <div class="volt-toggle">
+            <button class="volt-btn active" id="vbtn220" onclick="setVoltage('220')">220 فولت</button>
+            <button class="volt-btn" id="vbtn380" onclick="setVoltage('380')">380 فولت</button>
+          </div>
+          <input type="hidden" id="f_voltage" value="220">
+        </div>
+        <div class="form-row"><label>ملاحظات</label><textarea id="f_notes" rows="2" placeholder="أي ملاحظات..."></textarea></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head" onclick="toggleSection(this)"><h3>⚡ البيانات الكهربائية</h3><span class="chevron">▼</span></div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="form-row"><label>القدرة (كيلوواط)</label><input type="number" id="f_power_kw" step="0.01" min="0" placeholder="0.37" oninput="syncHP()"></div>
+          <div class="form-row"><label>القدرة (حصان HP)</label><input type="number" id="f_power_hp" step="0.01" min="0" placeholder="0.5" oninput="syncKW()"></div>
+          <div class="form-row"><label>التيار (أمبير)</label><input type="number" id="f_current" step="0.01" min="0" placeholder="2.4"></div>
+          <div class="form-row"><label>التردد (هرتز)</label><select id="f_frequency"><option value="">--</option><option>50</option><option>60</option></select></div>
+          <div class="form-row"><label>السرعة (RPM)</label><input type="number" id="f_rpm" min="0" placeholder="1400"></div>
+          <div class="form-row"><label>نوع السلك</label><select id="f_wireType"><option value="">--</option><option>نحاس</option><option>ألومنيوم</option></select></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head" onclick="toggleSection(this)"><h3>🔩 معلومات الحديد</h3><span class="chevron">▼</span></div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="form-row"><label>عدد المجاري</label><input type="number" id="f_slotCount" min="0" oninput="autoCalc()"></div>
+          <div class="form-row"><label>طول المجرة (مم)</label><input type="number" id="f_coreLength" step="0.1" min="0"></div>
+          <div class="form-row"><label>سمك الحديد (مم)</label><input type="number" id="f_coreThick" step="0.1" min="0"></div>
+          <div class="form-row"><label>القطر الداخلي (مم)</label><input type="number" id="f_innerDia" step="0.1" min="0"></div>
+          <div class="form-row"><label>عرض المجرى (مم)</label><input type="number" id="f_slotWidth" step="0.1" min="0" oninput="autoCalc()"></div>
+          <div class="form-row"><label>عمق المجرى (مم)</label><input type="number" id="f_slotDepth" step="0.1" min="0" oninput="autoCalc()"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head open" onclick="toggleSection(this)"><h3>🟢 ملفات التشغيل</h3><span class="chevron">▼</span></div>
+      <div class="section-body open">
+        <div class="form-grid">
+          <div class="form-row"><label>قطر السلك (مم)</label><input type="number" id="rc_wireDia" step="0.001" min="0" placeholder="0.45" oninput="autoCalc()"></div>
+          <div class="form-row"><label>عدد الأسلاك</label><input type="number" id="rc_wireCount" min="1" value="1" oninput="autoCalc()"></div>
+          <div class="form-row"><label>عدد الملفات</label><input type="number" id="rc_coilCount" min="0"></div>
+          <div class="form-row"><label>عدد السريات</label><input type="number" id="rc_groupCount" min="1" value="1" onchange="renderGroupsUI('run',this.value)"></div>
+        </div>
+        <div class="groups-wrap" id="run_groups"></div>
+        <button class="btn btn-outline btn-sm" onclick="addGroup('run')" style="margin-top:5px">+ سرية</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head" onclick="toggleSection(this)"><h3>🔵 ملفات التقويم</h3><span class="chevron">▼</span></div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="form-row"><label>قطر السلك (مم)</label><input type="number" id="sc_wireDia" step="0.001" min="0" placeholder="0.32" oninput="autoCalc()"></div>
+          <div class="form-row"><label>عدد الأسلاك</label><input type="number" id="sc_wireCount" min="1" value="1" oninput="autoCalc()"></div>
+          <div class="form-row"><label>عدد الملفات</label><input type="number" id="sc_coilCount" min="0"></div>
+          <div class="form-row"><label>عدد السريات</label><input type="number" id="sc_groupCount" min="1" value="1" onchange="renderGroupsUI('start',this.value)"></div>
+        </div>
+        <div class="groups-wrap" id="start_groups"></div>
+        <button class="btn btn-outline btn-sm" onclick="addGroup('start')" style="margin-top:5px">+ سرية</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head" onclick="toggleSection(this)"><h3>🟠 ملفات السرعات</h3><span class="chevron">▼</span></div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="form-row"><label>قطر السلك (مم)</label><input type="number" id="sp_wireDia" step="0.001" min="0"></div>
+          <div class="form-row"><label>عدد الأطراف</label><input type="number" id="sp_termCount" min="0"></div>
+          <div class="form-row"><label>عدد الملفات</label><input type="number" id="sp_coilCount" min="0"></div>
+          <div class="form-row"><label>عدد السريات</label><input type="number" id="sp_groupCount" min="1" value="1" onchange="renderGroupsUI('speed',this.value)"></div>
+        </div>
+        <div class="groups-wrap" id="speed_groups"></div>
+        <button class="btn btn-outline btn-sm" onclick="addGroup('speed')" style="margin-top:5px">+ سرية</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head" onclick="toggleSection(this)"><h3>🧵 معلومات البوبينة</h3><span class="chevron">▼</span></div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="form-row"><label>قطر السلك (مم)</label><input type="number" id="bb_wireDia" step="0.001" min="0"></div>
+          <div class="form-row"><label>عدد المجاري</label><input type="number" id="bb_slotCount" min="0"></div>
+          <div class="form-row"><label>الخطوة</label><input type="number" id="bb_step" min="0"></div>
+          <div class="form-row"><label>عدد اللفات</label><input type="number" id="bb_turns" min="0"></div>
+          <div class="form-row"><label>عدد العلامات</label><input type="number" id="bb_marks" min="0"></div>
+          <div class="form-row"><label>اتجاه اللف</label><select id="bb_direction"><option value="">--</option><option value="CW">CW عكس عقارب</option><option value="CCW">CCW مع عقارب</option></select></div>
+        </div>
+        <div class="form-row"><label>ملاحظة الترحيل</label><input type="text" id="bb_migration" placeholder="ملاحظة..."></div>
+      </div>
+    </div>
+
+    <div class="calc-box" id="liveCalcBox" style="display:none">
+      <h3>🔢 الحسابات اللحظية</h3>
+      <div class="calc-grid" id="liveCalcGrid"></div>
+    </div>
+
+    <div style="display:flex;gap:7px;margin-top:14px">
+      <button class="btn btn-primary btn-block" onclick="saveMotor()">💾 حفظ</button>
+      <button class="btn btn-outline" onclick="showScreen('list')">إلغاء</button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: DETAIL ══ -->
+  <div class="screen" id="screenDetail">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px" class="no-print">
+      <h2 id="detailTitle">تفاصيل الموتور</h2>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-outline btn-sm" onclick="exportDetailPDF()">📄 PDF</button>
+        <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️</button>
+        <button class="btn btn-outline btn-sm" onclick="showScreen('list')">← رجوع</button>
+      </div>
+    </div>
+    <div class="print-header"><h2 id="printTitle"></h2><p>طُبع: <span id="printDate"></span></p></div>
+    <div id="detailContent"></div>
+    <div id="motorHistoryWrap" style="margin-top:14px"></div>
+  </div>
+
+  <!-- ══ SCREEN: ANALYTICS ══ -->
+  <div class="screen" id="screenAnalytics">
+    <h2 style="margin-bottom:14px">📊 لوحة الإحصاءات</h2>
+    <div id="analyticsContent"></div>
+  </div>
+
+  <!-- ══ SCREEN: COMPARE ══ -->
+  <div class="screen" id="screenCompare">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h2>⚖️ مقارنة المحركات</h2>
+      <button class="btn btn-outline btn-sm" onclick="showScreen('list')">← رجوع</button>
+    </div>
+    <div id="compareContent"></div>
+  </div>
+
+  <!-- ══ SCREEN: BACKUP ══ -->
+  <div class="screen" id="screenBackup">
+    <h2 style="margin-bottom:12px">💾 البيانات والنسخ الاحتياطي</h2>
+    <div class="backup-card">
+      <h3>📊 إحصائيات قاعدة البيانات</h3>
+      <div id="backupStats" style="font-size:13px;color:var(--text2);line-height:1.9"></div>
+    </div>
+    <div class="backup-card">
+      <h3>⬇️ تصدير نسخة احتياطية (JSON)</h3>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:10px">تصدير كامل البيانات مع سجل التعديلات</p>
+      <button class="btn btn-success btn-block" onclick="exportBackup()">تصدير الآن</button>
+    </div>
+    <div class="backup-card">
+      <h3>⬆️ استيراد نسخة احتياطية</h3>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:10px">⚠️ سيتم دمج البيانات مع الحالية</p>
+      <label class="btn btn-outline btn-block" style="justify-content:center;cursor:pointer">
+        اختر ملف JSON
+        <input type="file" accept=".json" style="display:none" onchange="importBackup(event)">
+      </label>
+    </div>
+    <div class="backup-card">
+      <h3>📋 سجل التعديلات الأخيرة</h3>
+      <div id="globalHistoryWrap"></div>
+    </div>
+    <div class="backup-card" style="border-color:var(--danger);background:var(--danger-light)">
+      <h3 style="color:var(--danger)">🗑️ حذف جميع البيانات</h3>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:10px">لا يمكن التراجع!</p>
+      <button class="btn btn-danger btn-block" onclick="clearAllData()">حذف كل البيانات</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav_list" onclick="showScreen('list')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    القائمة
+  </button>
+  <button class="nav-btn" id="nav_add" onclick="showFormAdd()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    إضافة
+  </button>
+  <button class="nav-btn" id="nav_analytics" onclick="showScreen('analytics')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    إحصاءات
+  </button>
+  <button class="nav-btn" id="nav_compare" onclick="startCompareMode()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+    مقارنة
+  </button>
+  <button class="nav-btn" id="nav_backup" onclick="showScreen('backup')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+    بيانات
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="confirmTitle">تأكيد</h2><button onclick="closeModal('confirmModal')" class="btn-icon">✕</button></div>
+    <div class="modal-body">
+      <p id="confirmMsg" style="margin-bottom:14px;color:var(--text2)"></p>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-danger" onclick="confirmAction()">تأكيد الحذف</button>
+        <button class="btn btn-outline" onclick="closeModal('confirmModal')">إلغاء</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATES MODAL -->
+<div class="modal-overlay" id="templatesModal">
+  <div class="modal">
+    <div class="modal-header"><h2>📋 قوالب جاهزة</h2><button onclick="closeModal('templatesModal')" class="btn-icon">✕</button></div>
+    <div class="modal-body" id="templatesBody"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// ① DATABASE  (DB_VERSION=2 — adds 'history' store)
+// ══════════════════════════════════════════════════════════
+const DB_NAME='MotorWindingDB', DB_VERSION=2, STORE='motors', HIST_STORE='history';
+let db;
+
+function openDB(){
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open(DB_NAME,DB_VERSION);
+    req.onupgradeneeded=e=>{
+      const d=e.target.result;
+      if(!d.objectStoreNames.contains(STORE)){
+        const s=d.createObjectStore(STORE,{keyPath:'id',autoIncrement:true});
+        s.createIndex('motorType','motorType',{unique:false});
+        s.createIndex('voltage','voltage',{unique:false});
+      }
+      if(!d.objectStoreNames.contains(HIST_STORE)){
+        const h=d.createObjectStore(HIST_STORE,{keyPath:'hid',autoIncrement:true});
+        h.createIndex('motorId','motorId',{unique:false});
+        h.createIndex('ts','ts',{unique:false});
+      }
+    };
+    req.onsuccess=e=>{db=e.target.result;res(db);};
+    req.onerror=e=>rej(e.target.error);
+  });
+}
+const dbGetAll=()=>new Promise((r,j)=>{const tx=db.transaction(STORE,'readonly');const q=tx.objectStore(STORE).getAll();q.onsuccess=e=>r(e.target.result);q.onerror=e=>j(e);});
+const dbGet=id=>new Promise((r,j)=>{const tx=db.transaction(STORE,'readonly');const q=tx.objectStore(STORE).get(id);q.onsuccess=e=>r(e.target.result);q.onerror=e=>j(e);});
+const dbPut=rec=>new Promise((r,j)=>{const tx=db.transaction(STORE,'readwrite');const q=tx.objectStore(STORE).put(rec);q.onsuccess=e=>r(e.target.result);q.onerror=e=>j(e);});
+const dbDelete=id=>new Promise((r,j)=>{const tx=db.transaction(STORE,'readwrite');const q=tx.objectStore(STORE).delete(id);q.onsuccess=e=>r();q.onerror=e=>j(e);});
+const dbClear=()=>new Promise((r,j)=>{const tx=db.transaction(STORE,'readwrite');const q=tx.objectStore(STORE).clear();q.onsuccess=e=>r();q.onerror=e=>j(e);});
+
+// HISTORY
+function histAdd(motorId,action,label){
+  const tx=db.transaction(HIST_STORE,'readwrite');
+  tx.objectStore(HIST_STORE).put({motorId,action,label,ts:Date.now()});
+}
+function histGetAll(){
+  return new Promise((r,j)=>{const tx=db.transaction(HIST_STORE,'readonly');const q=tx.objectStore(HIST_STORE).getAll();q.onsuccess=e=>r(e.target.result);q.onerror=e=>j(e);});
+}
+function histGetByMotor(motorId){
+  return new Promise((r,j)=>{
+    const tx=db.transaction(HIST_STORE,'readonly');
+    const idx=tx.objectStore(HIST_STORE).index('motorId');
+    const q=idx.getAll(motorId);
+    q.onsuccess=e=>r(e.target.result);q.onerror=e=>j(e);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// ② DARK MODE
+// ══════════════════════════════════════════════════════════
+let darkMode=localStorage.getItem('theme')==='dark';
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme',darkMode?'dark':'light');
+  document.getElementById('themeBtn').textContent=darkMode?'☀️':'🌙';
+}
+function toggleTheme(){darkMode=!darkMode;localStorage.setItem('theme',darkMode?'dark':'light');applyTheme();}
+
+// ══════════════════════════════════════════════════════════
+// ③ PWA
+// ══════════════════════════════════════════════════════════
+let deferredInstall=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;document.getElementById('pwaBanner').style.display='flex';});
+function installPWA(){if(deferredInstall){deferredInstall.prompt();deferredInstall.userChoice.then(()=>{deferredInstall=null;document.getElementById('pwaBanner').style.display='none';});}}
+// Inline manifest blob
+(()=>{
+  const manifest={name:'مدير لف المحركات',short_name:'لف المحركات',start_url:'.',display:'standalone',background_color:'#1a56db',theme_color:'#1a56db',description:'تطبيق إدارة بيانات لف المحركات الكهربائية',icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%231a56db"/><text y=".9em" font-size="80" x="10">⚡</text></svg>',sizes:'192x192',type:'image/svg+xml'}]};
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  document.getElementById('pwaManifest').href=URL.createObjectURL(blob);
+})();
+// Service Worker inline registration
+const swCode=`
+self.addEventListener('install',e=>e.waitUntil(caches.open('mwm-v3').then(c=>c.addAll(['.']))));
+self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{const c=resp.clone();caches.open('mwm-v3').then(cache=>cache.put(e.request,c));return resp;})).catch(()=>caches.match('.'))));
+`;
+try{const swBlob=new Blob([swCode],{type:'application/javascript'});navigator.serviceWorker&&navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});}catch(e){}
+
+// ══════════════════════════════════════════════════════════
+// ④ SCREENS
+// ══════════════════════════════════════════════════════════
+let currentScreen='list';
+const navMap={list:'nav_list',add:'nav_add',form:'nav_add',detail:'nav_list',analytics:'nav_analytics',compare:'nav_compare',backup:'nav_backup'};
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('screen'+name.charAt(0).toUpperCase()+name.slice(1));
+  if(!el)return;
+  el.classList.add('active');
+  const nav=document.getElementById(navMap[name]||'nav_list');
+  if(nav)nav.classList.add('active');
+  currentScreen=name;
+  if(name==='list'){renderList();compareMode=false;compareSelected=[];updateCompareBar();}
+  if(name==='backup'){renderBackupStats();renderGlobalHistory();}
+  if(name==='analytics')renderAnalytics();
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑤ SMART ALERTS
+// ══════════════════════════════════════════════════════════
+function checkAlerts(motors){
+  const alerts=[];
+  motors.forEach(m=>{
+    const label=m.motorTypeCustom||m.motorType||'موتور #'+m.id;
+    // Missing run coils
+    if(!m.runCoils) alerts.push({id:m.id,msg:`"${label}" — لا توجد ملفات تشغيل`,level:'warn'});
+    // Fill ratio too high
+    if(m.ironData&&m.runCoils&&m.startCoils){
+      const fill=slotFillRatio(m.ironData.slotWidth_mm,m.ironData.slotDepth_mm,m.runCoils.wireDiameter_mm,m.runCoils.wireCount,m.startCoils.wireDiameter_mm,m.startCoils.wireCount);
+      if(fill&&fill>80) alerts.push({id:m.id,msg:`"${label}" — نسبة ملء المجرى ${fill}% (مرتفعة)`,level:'warn'});
+      if(fill&&fill<30) alerts.push({id:m.id,msg:`"${label}" — نسبة ملء المجرى ${fill}% (منخفضة جداً)`,level:'info'});
+    }
+    // Start/run wire ratio anomaly
+    if(m.runCoils&&m.startCoils){
+      const ratio=m.runCoils.wireDiameter_mm/m.startCoils.wireDiameter_mm;
+      if(ratio<1) alerts.push({id:m.id,msg:`"${label}" — قطر التشغيل أصغر من التقويم!`,level:'danger'});
+    }
+  });
+  return alerts;
+}
+function renderAlerts(motors){
+  const alerts=checkAlerts(motors);
+  const wrap=document.getElementById('alertsWrap');
+  if(!alerts.length){wrap.innerHTML='';return;}
+  wrap.innerHTML=`<div class="alerts-section">
+    <h3>⚠️ تنبيهات (${alerts.length})</h3>
+    ${alerts.map(a=>`<div class="alert-item" onclick="showDetail(${a.id})">
+      <strong>${a.msg}</strong>
+      <span>انقر للعرض</span>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑥ FILTER / SORT / SEARCH
+// ══════════════════════════════════════════════════════════
+let currentFilter='all';
+function setFilter(el,f){document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');currentFilter=f;renderList();}
+function toggleAdvSearch(){document.getElementById('advSearch').classList.toggle('open');}
+function clearAdvSearch(){['sortBy','filterWire','filterSlots','filterData'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=el.tagName==='SELECT'&&id==='sortBy'?'newest':'';});renderList();}
+
+function applyFiltersAndSort(motors){
+  let m=[...motors];
+  // quick filter
+  if(currentFilter==='220') m=m.filter(x=>x.voltage==='220');
+  else if(currentFilter==='380') m=m.filter(x=>x.voltage==='380');
+  else if(currentFilter==='fan') m=m.filter(x=>(x.motorType||'').includes('مروحة'));
+  else if(currentFilter==='pump') m=m.filter(x=>(x.motorType||'').includes('مياه')||(x.motorType||'').includes('مضخة'));
+  else if(currentFilter==='wash') m=m.filter(x=>(x.motorType||'').includes('غسالة'));
+  else if(currentFilter==='ac') m=m.filter(x=>(x.motorType||'').includes('مكيف'));
+  // advanced
+  const wire=document.getElementById('filterWire')?.value;
+  const slots=document.getElementById('filterSlots')?.value;
+  const data=document.getElementById('filterData')?.value;
+  const sort=document.getElementById('sortBy')?.value||'newest';
+  if(wire==='thin') m=m.filter(x=>x.runCoils&&x.runCoils.wireDiameter_mm<0.4);
+  else if(wire==='medium') m=m.filter(x=>x.runCoils&&x.runCoils.wireDiameter_mm>=0.4&&x.runCoils.wireDiameter_mm<=0.6);
+  else if(wire==='thick') m=m.filter(x=>x.runCoils&&x.runCoils.wireDiameter_mm>0.6);
+  if(slots) m=m.filter(x=>x.ironData&&x.ironData.slotCount==slots);
+  if(data==='complete') m=m.filter(x=>x.runCoils&&x.startCoils&&x.ironData);
+  else if(data==='run') m=m.filter(x=>x.runCoils);
+  else if(data==='iron') m=m.filter(x=>x.ironData);
+  else if(data==='elec') m=m.filter(x=>x.electricalData);
+  // sort
+  if(sort==='newest') m.sort((a,b)=>new Date(b.updatedAt||b.createdAt)-new Date(a.updatedAt||a.createdAt));
+  else if(sort==='oldest') m.sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
+  else if(sort==='name') m.sort((a,b)=>(a.motorTypeCustom||a.motorType||'').localeCompare(b.motorTypeCustom||b.motorType||''));
+  else if(sort==='type') m.sort((a,b)=>(a.motorType||'').localeCompare(b.motorType||''));
+  return m;
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑦ COMPARE MODE
+// ══════════════════════════════════════════════════════════
+let compareMode=false,compareSelected=[];
+function startCompareMode(){compareMode=true;compareSelected=[];updateCompareBar();showScreen('list');showToast('اختر موتورين من القائمة');}
+function cancelCompare(){compareMode=false;compareSelected=[];updateCompareBar();renderList();}
+function updateCompareBar(){
+  const wrap=document.getElementById('compareBarWrap');
+  if(!compareMode){wrap.innerHTML='';return;}
+  wrap.innerHTML=`<div class="compare-bar-inner">
+    <span style="font-size:12px;color:var(--text2)">${compareSelected.length===0?'اختر أول موتور':compareSelected.length===1?'اختر الموتور الثاني':'✅ موتوران محددان'}</span>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-warn btn-sm" onclick="doCompare()" ${compareSelected.length<2?'disabled':''}>مقارنة ▶</button>
+      <button class="btn btn-outline btn-sm" onclick="cancelCompare()">إلغاء</button>
+    </div>
+  </div>`;
+}
+function toggleCompareSelect(id){
+  if(compareSelected.includes(id)) compareSelected=compareSelected.filter(x=>x!==id);
+  else if(compareSelected.length<2) compareSelected.push(id);
+  else{showToast('اختر موتورين فقط');return;}
+  updateCompareBar();renderList();
+}
+async function doCompare(){
+  if(compareSelected.length<2)return;
+  const m1=await dbGet(compareSelected[0]),m2=await dbGet(compareSelected[1]);
+  buildCompare(m1,m2);compareMode=false;compareSelected=[];showScreen('compare');
+}
+function buildCompare(m1,m2){
+  const l1=m1.motorTypeCustom||m1.motorType||'موتور 1',l2=m2.motorTypeCustom||m2.motorType||'موتور 2';
+  const rows=[
+    {lbl:'نوع الموتور',v1:m1.motorType,v2:m2.motorType},
+    {lbl:'الجهد',v1:(m1.voltage||'-')+'V',v2:(m2.voltage||'-')+'V'},
+    {lbl:'قطر التشغيل',v1:m1.runCoils?.wireDiameter_mm?m1.runCoils.wireDiameter_mm+'مم':'-',v2:m2.runCoils?.wireDiameter_mm?m2.runCoils.wireDiameter_mm+'مم':'-',numeric:true,better:'higher'},
+    {lbl:'قطر التقويم',v1:m1.startCoils?.wireDiameter_mm?m1.startCoils.wireDiameter_mm+'مم':'-',v2:m2.startCoils?.wireDiameter_mm?m2.startCoils.wireDiameter_mm+'مم':'-',numeric:true,better:'higher'},
+    {lbl:'مساحة مقطع التشغيل',v1:m1.runCoils?wireArea(m1.runCoils.wireDiameter_mm,m1.runCoils.wireCount)+'مم²':'-',v2:m2.runCoils?wireArea(m2.runCoils.wireDiameter_mm,m2.runCoils.wireCount)+'مم²':'-',numeric:true,better:'higher'},
+    {lbl:'عدد ملفات التشغيل',v1:m1.runCoils?.coilCount||'-',v2:m2.runCoils?.coilCount||'-'},
+    {lbl:'عدد المجاري',v1:m1.ironData?.slotCount||'-',v2:m2.ironData?.slotCount||'-'},
+    {lbl:'نسبة ملء المجرى',v1:m1.ironData&&m1.runCoils&&m1.startCoils?slotFillRatio(m1.ironData.slotWidth_mm,m1.ironData.slotDepth_mm,m1.runCoils.wireDiameter_mm,m1.runCoils.wireCount,m1.startCoils.wireDiameter_mm,m1.startCoils.wireCount)+'%':'-',v2:m2.ironData&&m2.runCoils&&m2.startCoils?slotFillRatio(m2.ironData.slotWidth_mm,m2.ironData.slotDepth_mm,m2.runCoils.wireDiameter_mm,m2.runCoils.wireCount,m2.startCoils.wireDiameter_mm,m2.startCoils.wireCount)+'%':'-'},
+    {lbl:'القدرة (كيلوواط)',v1:m1.electricalData?.power_kw||'-',v2:m2.electricalData?.power_kw||'-',numeric:true,better:'higher'},
+    {lbl:'التيار (أمبير)',v1:m1.electricalData?.current_amp||'-',v2:m2.electricalData?.current_amp||'-',numeric:true,better:'lower'},
+    {lbl:'السرعة (RPM)',v1:m1.electricalData?.rpm||'-',v2:m2.electricalData?.rpm||'-'},
+    {lbl:'نوع السلك',v1:m1.electricalData?.wireType||'-',v2:m2.electricalData?.wireType||'-'},
+  ];
+  let h1=`<div class="compare-col"><div class="compare-col-head" style="background:var(--primary-light);color:var(--primary)">${l1}</div>`;
+  let h2=`<div class="compare-col"><div class="compare-col-head" style="background:var(--accent-light);color:var(--accent)">${l2}</div>`;
+  rows.forEach(r=>{
+    let c1='',c2='';
+    if(r.numeric){const n1=parseFloat(r.v1),n2=parseFloat(r.v2);if(!isNaN(n1)&&!isNaN(n2)&&n1!==n2){const b=r.better==='higher'?(n1>n2):(n1<n2);c1=b?'compare-diff-better':'compare-diff-worse';c2=!b?'compare-diff-better':'compare-diff-worse';}}
+    h1+=`<div class="compare-row ${c1}"><span class="cr-lbl">${r.lbl}</span><span class="cr-val">${r.v1}</span></div>`;
+    h2+=`<div class="compare-row ${c2}"><span class="cr-lbl">${r.lbl}</span><span class="cr-val">${r.v2}</span></div>`;
+  });
+  h1+='</div>';h2+='</div>';
+  document.getElementById('compareContent').innerHTML=`<div class="compare-grid">${h1}${h2}</div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text3);text-align:center">
+      <span style="display:inline-block;width:10px;height:10px;background:#dcfce7;border-radius:2px;vertical-align:middle"></span> أفضل &nbsp;
+      <span style="display:inline-block;width:10px;height:10px;background:#fee2e2;border-radius:2px;vertical-align:middle"></span> أقل
+    </div>
+    <div style="margin-top:10px;display:flex;gap:7px;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="showFormEdit(${m1.id})">✏️ تعديل ${l1}</button>
+      <button class="btn btn-outline btn-sm" onclick="showFormEdit(${m2.id})">✏️ تعديل ${l2}</button>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑧ LIST
+// ══════════════════════════════════════════════════════════
+async function renderList(){
+  const all=await dbGetAll();
+  renderAlerts(all);
+  const q=(document.getElementById('searchInput')?.value||'').trim().toLowerCase();
+  let motors=applyFiltersAndSort(all);
+  if(q) motors=motors.filter(m=>(m.motorType||'').toLowerCase().includes(q)||(m.motorTypeCustom||'').toLowerCase().includes(q)||(m.notes||'').toLowerCase().includes(q)||(m.electricalData?.wireType||'').toLowerCase().includes(q));
+  const total=all.length,v220=all.filter(m=>m.voltage==='220').length,v380=all.filter(m=>m.voltage==='380').length,complete=all.filter(m=>m.runCoils&&m.startCoils&&m.ironData).length;
+  document.getElementById('statsBar').innerHTML=`
+    <div class="stat-chip"><div class="s-num">${total}</div><div class="s-lbl">إجمالي</div></div>
+    <div class="stat-chip"><div class="s-num">${v220}</div><div class="s-lbl">220V</div></div>
+    <div class="stat-chip"><div class="s-num">${v380}</div><div class="s-lbl">380V</div></div>
+    <div class="stat-chip"><div class="s-num">${complete}</div><div class="s-lbl">مكتملة</div></div>`;
+  document.getElementById('headerSub').textContent=`${total} موتور محفوظ`;
+  updateCompareBar();
+  const list=document.getElementById('motorList');
+  if(!motors.length){list.innerHTML=`<div class="empty"><div class="empty-icon">⚙️</div><p>${total?'لا نتائج للبحث أو الفلتر':'لا توجد محركات بعد'}</p><button class="btn btn-primary" style="margin-top:10px" onclick="showFormAdd()">+ إضافة أول موتور</button></div>`;return;}
+  const alertIds=new Set(checkAlerts(all).map(a=>a.id));
+  list.innerHTML=motors.map(m=>{
+    const label=m.motorTypeCustom||m.motorType||'موتور #'+m.id;
+    const date=m.updatedAt?new Date(m.updatedAt).toLocaleDateString('ar-EG'):'';
+    const rc=m.runCoils,sc=m.startCoils;
+    const fill=m.ironData&&rc&&sc?slotFillRatio(m.ironData.slotWidth_mm,m.ironData.slotDepth_mm,rc.wireDiameter_mm,rc.wireCount,sc.wireDiameter_mm,sc.wireCount):null;
+    const sel=compareSelected.includes(m.id);
+    const safe=label.replace(/'/g,"'");
+    return `<div class="motor-card${sel?' selected':''}${alertIds.has(m.id)?' has-alert':''}"${compareMode?` onclick="toggleCompareSelect(${m.id})" style="cursor:pointer"`:''}>
+      ${compareMode?`<div style="float:left;width:22px;height:22px;border-radius:50%;border:2px solid var(--${sel?'accent':'border'});background:${sel?'var(--accent)':'transparent'};margin-left:8px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0">${sel?'✓':''}</div>`:''}
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <strong style="font-size:14px">${label}</strong>
+        ${alertIds.has(m.id)?'<span class="alert-badge">⚠️ تنبيه</span>':''}
+      </div>
+      <div class="motor-meta">
+        <span class="motor-badge ${m.voltage==='380'?'badge-380':'badge-220'}">${m.voltage||'220'}V</span>
+        ${rc?`<span class="meta-chip">تشغيل ∅${rc.wireDiameter_mm}مم</span>`:''}
+        ${sc?`<span class="meta-chip">تقويم ∅${sc.wireDiameter_mm}مم</span>`:''}
+        ${m.ironData?.slotCount?`<span class="meta-chip">${m.ironData.slotCount} مجرى</span>`:''}
+        ${fill!==null?`<span class="meta-chip" style="color:${fill>75?'var(--danger)':fill<35?'var(--warn)':'var(--accent)'}">ملء ${fill}%</span>`:''}
+        ${date?`<span class="meta-chip">${date}</span>`:''}
+      </div>
+      ${m.notes?`<p style="font-size:11px;color:var(--text2);margin-top:4px;line-height:1.4">${m.notes}</p>`:''}
+      ${!compareMode?`<div class="motor-actions">
+        <button class="btn btn-primary btn-sm" onclick="showDetail(${m.id})">👁️ عرض</button>
+        <button class="btn btn-outline btn-sm" onclick="showFormEdit(${m.id})">✏️ تعديل</button>
+        <button class="btn btn-outline btn-sm" onclick="duplicateMotor(${m.id})">📋 نسخ</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete(${m.id},'${safe}')">🗑️</button>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑨ ANALYTICS
+// ══════════════════════════════════════════════════════════
+async function renderAnalytics(){
+  const motors=await dbGetAll();
+  if(!motors.length){document.getElementById('analyticsContent').innerHTML='<div class="empty"><div class="empty-icon">📊</div><p>أضف محركات أولاً لعرض الإحصاءات</p></div>';return;}
+
+  const total=motors.length;
+  const v220=motors.filter(m=>m.voltage==='220').length;
+  const v380=motors.filter(m=>m.voltage==='380').length;
+  const withRun=motors.filter(m=>m.runCoils).length;
+  const withIron=motors.filter(m=>m.ironData).length;
+  const complete=motors.filter(m=>m.runCoils&&m.startCoils&&m.ironData).length;
+
+  // Types distribution
+  const typeCounts={};
+  motors.forEach(m=>{const t=m.motorTypeCustom||m.motorType||'غير محدد';typeCounts[t]=(typeCounts[t]||0)+1;});
+  const sortedTypes=Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]);
+  const maxCount=sortedTypes[0]?.[1]||1;
+
+  // Wire diameter distribution
+  const wireBuckets={'أقل من 0.4':0,'0.4 – 0.5':0,'0.5 – 0.6':0,'0.6 – 0.7':0,'أكبر من 0.7':0};
+  motors.forEach(m=>{
+    const d=m.runCoils?.wireDiameter_mm;
+    if(!d)return;
+    if(d<0.4) wireBuckets['أقل من 0.4']++;
+    else if(d<0.5) wireBuckets['0.4 – 0.5']++;
+    else if(d<0.6) wireBuckets['0.5 – 0.6']++;
+    else if(d<0.7) wireBuckets['0.6 – 0.7']++;
+    else wireBuckets['أكبر من 0.7']++;
+  });
+  const maxWire=Math.max(...Object.values(wireBuckets))||1;
+
+  // Avg wire diameters
+  const runDias=motors.filter(m=>m.runCoils?.wireDiameter_mm).map(m=>m.runCoils.wireDiameter_mm);
+  const startDias=motors.filter(m=>m.startCoils?.wireDiameter_mm).map(m=>m.startCoils.wireDiameter_mm);
+  const avgRun=runDias.length?(runDias.reduce((a,b)=>a+b,0)/runDias.length).toFixed(3):'-';
+  const avgStart=startDias.length?(startDias.reduce((a,b)=>a+b,0)/startDias.length).toFixed(3):'-';
+
+  // Fill ratios
+  const fills=motors.filter(m=>m.ironData&&m.runCoils&&m.startCoils).map(m=>slotFillRatio(m.ironData.slotWidth_mm,m.ironData.slotDepth_mm,m.runCoils.wireDiameter_mm,m.runCoils.wireCount,m.startCoils.wireDiameter_mm,m.startCoils.wireCount)).filter(f=>f!==null);
+  const avgFill=fills.length?(fills.reduce((a,b)=>a+b,0)/fills.length).toFixed(1):'-';
+
+  const colors=['#1a56db','#0e9f6e','#e3a008','#e02424','#7c3aed','#0ea5e9','#ec4899'];
+
+  document.getElementById('analyticsContent').innerHTML=`
+    <div class="analytics-grid">
+      <div class="kpi-card"><div class="kpi-num">${total}</div><div class="kpi-lbl">إجمالي المحركات</div></div>
+      <div class="kpi-card"><div class="kpi-num" style="color:var(--accent)">${complete}</div><div class="kpi-lbl">سجلات مكتملة</div><div class="kpi-sub">${total?Math.round(complete/total*100):0}%</div></div>
+      <div class="kpi-card"><div class="kpi-num" style="color:var(--warn)">${avgRun}</div><div class="kpi-lbl">متوسط ∅ التشغيل</div><div class="kpi-sub">مم</div></div>
+      <div class="kpi-card"><div class="kpi-num" style="color:var(--purple)">${avgFill}</div><div class="kpi-lbl">متوسط نسبة الملء</div><div class="kpi-sub">%</div></div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>توزيع أنواع المحركات</h3>
+      ${sortedTypes.map(([t,c],i)=>`<div class="bar-row">
+        <span class="bar-lbl">${t.replace('موتور ','')}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxCount*100)}%;background:${colors[i%colors.length]}">${c}</div></div>
+        <span class="bar-count">${c}</span>
+      </div>`).join('')}
+    </div>
+
+    <div class="chart-wrap">
+      <h3>توزيع قطر سلك التشغيل (مم)</h3>
+      ${Object.entries(wireBuckets).map(([k,v])=>`<div class="bar-row">
+        <span class="bar-lbl">${k}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${maxWire?Math.round(v/maxWire*100):0}%;background:var(--accent)">${v||''}</div></div>
+        <span class="bar-count">${v}</span>
+      </div>`).join('')}
+    </div>
+
+    <div class="chart-wrap">
+      <h3>إحصاءات إضافية</h3>
+      <div class="detail-grid" style="margin-top:8px">
+        <div class="detail-item"><div class="di-label">220V</div><div class="di-val">${v220} محرك</div></div>
+        <div class="detail-item"><div class="di-label">380V</div><div class="di-val">${v380} محرك</div></div>
+        <div class="detail-item"><div class="di-label">بملفات تشغيل</div><div class="di-val">${withRun} محرك</div></div>
+        <div class="detail-item"><div class="di-label">ببيانات حديد</div><div class="di-val">${withIron} محرك</div></div>
+        <div class="detail-item"><div class="di-label">متوسط ∅ التقويم</div><div class="di-val">${avgStart} مم</div></div>
+        <div class="detail-item"><div class="di-label">محركات بتنبيهات</div><div class="di-val" style="color:var(--warn)">${checkAlerts(motors).length}</div></div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑩ CALCULATIONS
+// ══════════════════════════════════════════════════════════
+function wireArea(dia, count=1){
+  if(!dia) return 0;
+  return +(Math.PI*(dia/2)*(dia/2)*(count||1)).toFixed(4);
+}
+function slotFillRatio(slotW, slotD, rcD, rcC, scD, scC){
+  if(!slotW||!slotD) return null;
+  const fill = wireArea(rcD,rcC) + wireArea(scD,scC);
+  if(!fill) return null;
+  return +((fill/(slotW*slotD))*100).toFixed(1);
+}
+function syncHP(){
+  const kw=parseFloat(document.getElementById('f_power_kw').value);
+  if(!isNaN(kw)) document.getElementById('f_power_hp').value=+(kw*1.34102).toFixed(3);
+}
+function syncKW(){
+  const hp=parseFloat(document.getElementById('f_power_hp').value);
+  if(!isNaN(hp)) document.getElementById('f_power_kw').value=+(hp*0.7457).toFixed(3);
+}
+function autoCalc(){
+  const rcD=parseFloat(document.getElementById('rc_wireDia').value)||0;
+  const rcC=parseInt(document.getElementById('rc_wireCount').value)||1;
+  const scD=parseFloat(document.getElementById('sc_wireDia').value)||0;
+  const scC=parseInt(document.getElementById('sc_wireCount').value)||1;
+  const slotW=parseFloat(document.getElementById('f_slotWidth').value)||0;
+  const slotD=parseFloat(document.getElementById('f_slotDepth').value)||0;
+  const items=[];
+  if(rcD) items.push({lbl:'مساحة مقطع سلك التشغيل', val:wireArea(rcD,rcC), unit:'مم²'});
+  if(scD) items.push({lbl:'مساحة مقطع سلك التقويم', val:wireArea(scD,scC), unit:'مم²'});
+  if(slotW&&slotD) items.push({lbl:'مساحة المجرى', val:+(slotW*slotD).toFixed(3), unit:'مم²'});
+  const fill=slotFillRatio(slotW,slotD,rcD,rcC,scD,scC);
+  if(fill!==null) items.push({lbl:'نسبة ملء المجرى', val:fill, unit:'%'});
+  if(rcD&&scD) items.push({lbl:'نسبة التشغيل / التقويم', val:+(rcD/scD).toFixed(3), unit:''});
+  const box=document.getElementById('liveCalcBox'), grid=document.getElementById('liveCalcGrid');
+  if(!items.length){box.style.display='none'; return;}
+  box.style.display='block';
+  grid.innerHTML=items.map(i=>`<div class="calc-item"><div class="c-lbl">${i.lbl}</div><div><span class="c-val">${i.val}</span><span class="c-unit"> ${i.unit}</span></div></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑪ TEMPLATES
+// ══════════════════════════════════════════════════════════
+const TEMPLATES=[
+  {name:'موتور مروحة سقفي',desc:'220V — ∅0.45 تشغيل — ∅0.32 تقويم — 24 مجرى',data:{motorType:'موتور مروحة',voltage:'220',notes:'قالب مروحة سقفية 60W',electricalData:{power_kw:0.06,power_hp:0.08,current_amp:0.5,frequency_hz:50,rpm:1350,wireType:'نحاس'},ironData:{slotCount:24,coreLength_mm:35,coreThickness_mm:0.5,innerDiameter_mm:58,slotWidth_mm:3.2,slotDepth_mm:10},runCoils:{wireDiameter_mm:0.45,wireCount:1,coilCount:12,groups:[{groupNumber:1,coilsInGroup:4,step:1,pitch:5},{groupNumber:2,coilsInGroup:4,step:1,pitch:5},{groupNumber:3,coilsInGroup:4,step:1,pitch:5}]},startCoils:{wireDiameter_mm:0.32,wireCount:1,coilCount:12,groups:[{groupNumber:1,coilsInGroup:4,step:1,pitch:5},{groupNumber:2,coilsInGroup:4,step:1,pitch:5},{groupNumber:3,coilsInGroup:4,step:1,pitch:5}]}}},
+  {name:'موتور مضخة مياه',desc:'220V — ∅0.55 تشغيل — ∅0.38 تقويم — 36 مجرى',data:{motorType:'موتور مياه (طلمبة)',voltage:'220',notes:'قالب طلمبة 0.5HP',electricalData:{power_kw:0.37,power_hp:0.5,current_amp:2.4,frequency_hz:50,rpm:2800,wireType:'نحاس'},ironData:{slotCount:36,coreLength_mm:65,coreThickness_mm:0.5,innerDiameter_mm:75,slotWidth_mm:4.5,slotDepth_mm:14},runCoils:{wireDiameter_mm:0.55,wireCount:1,coilCount:18,groups:[{groupNumber:1,coilsInGroup:6,step:1,pitch:7},{groupNumber:2,coilsInGroup:6,step:1,pitch:7},{groupNumber:3,coilsInGroup:6,step:1,pitch:7}]},startCoils:{wireDiameter_mm:0.38,wireCount:1,coilCount:18,groups:[{groupNumber:1,coilsInGroup:6,step:1,pitch:7},{groupNumber:2,coilsInGroup:6,step:1,pitch:7},{groupNumber:3,coilsInGroup:6,step:1,pitch:7}]}}},
+  {name:'موتور غسالة',desc:'220V — ∅0.60 تشغيل — ∅0.42 تقويم — 36 مجرى',data:{motorType:'موتور غسالة',voltage:'220',notes:'قالب غسالة 180W',electricalData:{power_kw:0.18,power_hp:0.25,current_amp:1.8,frequency_hz:50,rpm:1450,wireType:'نحاس'},ironData:{slotCount:36,coreLength_mm:55,coreThickness_mm:0.5,innerDiameter_mm:70,slotWidth_mm:4,slotDepth_mm:12},runCoils:{wireDiameter_mm:0.60,wireCount:1,coilCount:18,groups:[{groupNumber:1,coilsInGroup:6,step:1,pitch:6},{groupNumber:2,coilsInGroup:6,step:1,pitch:6},{groupNumber:3,coilsInGroup:6,step:1,pitch:6}]},startCoils:{wireDiameter_mm:0.42,wireCount:1,coilCount:18,groups:[{groupNumber:1,coilsInGroup:6,step:1,pitch:6},{groupNumber:2,coilsInGroup:6,step:1,pitch:6},{groupNumber:3,coilsInGroup:6,step:1,pitch:6}]}}},
+  {name:'موتور مكيف شباك',desc:'220V — ∅0.50 تشغيل — ∅0.35 تقويم — 24 مجرى',data:{motorType:'موتور مكيف',voltage:'220',notes:'قالب مروحة مكيف شباك',electricalData:{power_kw:0.09,power_hp:0.12,current_amp:0.9,frequency_hz:50,rpm:1100,wireType:'نحاس'},ironData:{slotCount:24,coreLength_mm:40,coreThickness_mm:0.5,innerDiameter_mm:62,slotWidth_mm:3.5,slotDepth_mm:11},runCoils:{wireDiameter_mm:0.50,wireCount:1,coilCount:12,groups:[{groupNumber:1,coilsInGroup:4,step:1,pitch:5},{groupNumber:2,coilsInGroup:4,step:1,pitch:5},{groupNumber:3,coilsInGroup:4,step:1,pitch:5}]},startCoils:{wireDiameter_mm:0.35,wireCount:1,coilCount:12,groups:[{groupNumber:1,coilsInGroup:4,step:1,pitch:5},{groupNumber:2,coilsInGroup:4,step:1,pitch:5},{groupNumber:3,coilsInGroup:4,step:1,pitch:5}]}}},
+  {name:'موتور 3 فاز 380V',desc:'380V — ∅0.80 — 36 مجرى — 3 سريات',data:{motorType:'موتور مضخة',voltage:'380',notes:'قالب موتور ثلاثي الطور 1HP',electricalData:{power_kw:0.75,power_hp:1.0,current_amp:1.8,frequency_hz:50,rpm:2850,wireType:'نحاس'},ironData:{slotCount:36,coreLength_mm:80,coreThickness_mm:0.5,innerDiameter_mm:85,slotWidth_mm:5,slotDepth_mm:16},runCoils:{wireDiameter_mm:0.80,wireCount:1,coilCount:36,groups:[{groupNumber:1,coilsInGroup:12,step:1,pitch:8},{groupNumber:2,coilsInGroup:12,step:1,pitch:8},{groupNumber:3,coilsInGroup:12,step:1,pitch:8}]},startCoils:null}}
+];
+function openTemplatesModal(){
+  document.getElementById('templatesBody').innerHTML=`<p style="font-size:12px;color:var(--text2);margin-bottom:10px">اختر قالباً كنقطة بداية — يمكنك تعديل كل القيم.</p>`+
+    TEMPLATES.map((t,i)=>`<div class="tpl-card" onclick="useTemplate(${i})"><h3>${t.name}</h3><p>${t.desc}</p></div>`).join('');
+  document.getElementById('templatesModal').classList.add('open');
+}
+function useTemplate(i){closeModal('templatesModal');editingId=null;document.getElementById('formTitle').textContent='إضافة موتور (قالب)';clearForm();fillForm(TEMPLATES[i].data);showScreen('form');showToast('✅ تم تحميل القالب');}
+
+// ══════════════════════════════════════════════════════════
+// ⑫ FORM
+// ══════════════════════════════════════════════════════════
+let editingId=null;
+const runGroups=[],startGroups=[],speedGroups=[];
+
+function showFormAdd(){editingId=null;document.getElementById('formTitle').textContent='إضافة موتور جديد';clearForm();showScreen('form');}
+async function showFormEdit(id){editingId=id;document.getElementById('formTitle').textContent='تعديل بيانات الموتور';fillForm(await dbGet(id));showScreen('form');}
+
+function clearForm(){
+  ['f_motorType','f_motorTypeCustom','f_notes','f_power_kw','f_power_hp','f_current','f_frequency','f_rpm','f_wireType',
+   'f_slotCount','f_coreLength','f_coreThick','f_innerDia','f_slotWidth','f_slotDepth',
+   'rc_wireDia','rc_wireCount','rc_coilCount','rc_groupCount',
+   'sc_wireDia','sc_wireCount','sc_coilCount','sc_groupCount',
+   'sp_wireDia','sp_termCount','sp_coilCount','sp_groupCount',
+   'bb_wireDia','bb_slotCount','bb_step','bb_turns','bb_marks','bb_direction','bb_migration'
+  ].forEach(id=>{const el=document.getElementById(id);if(el)el.value=el.tagName==='SELECT'?'':(el.id.includes('Count')||el.id.includes('wireCount')?'1':'');});
+  setVoltage('220');
+  document.getElementById('customTypeRow').style.display='none';
+  document.getElementById('liveCalcBox').style.display='none';
+  runGroups.length=0;startGroups.length=0;speedGroups.length=0;
+  renderGroupsUI('run',1);renderGroupsUI('start',1);renderGroupsUI('speed',0);
+}
+
+function fillForm(m){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el&&v!==undefined&&v!==null)el.value=v;};
+  set('f_motorType',m.motorType);set('f_motorTypeCustom',m.motorTypeCustom);set('f_notes',m.notes);
+  checkCustomType();setVoltage(m.voltage||'220');
+  const ed=m.electricalData||{};
+  set('f_power_kw',ed.power_kw);set('f_power_hp',ed.power_hp);set('f_current',ed.current_amp);
+  set('f_frequency',ed.frequency_hz);set('f_rpm',ed.rpm);set('f_wireType',ed.wireType);
+  const ir=m.ironData||{};
+  set('f_slotCount',ir.slotCount);set('f_coreLength',ir.coreLength_mm);set('f_coreThick',ir.coreThickness_mm);
+  set('f_innerDia',ir.innerDiameter_mm);set('f_slotWidth',ir.slotWidth_mm);set('f_slotDepth',ir.slotDepth_mm);
+  if(m.runCoils) fillCoilSec('rc','run',m.runCoils);
+  if(m.startCoils) fillCoilSec('sc','start',m.startCoils);
+  if(m.speedCoils){fillCoilSec('sp','speed',m.speedCoils);set('sp_termCount',m.speedCoils.terminalCount);}
+  const bb=m.bobbinData||{};
+  set('bb_wireDia',bb.wireDiameter_mm);set('bb_slotCount',bb.slotCount);set('bb_step',bb.step);
+  set('bb_turns',bb.turnsCount);set('bb_marks',bb.marksCount);set('bb_direction',bb.windingDirection);set('bb_migration',bb.migrationNote);
+  setTimeout(autoCalc,60);
+}
+
+function fillCoilSec(pfx,type,data){
+  document.getElementById(pfx+'_wireDia').value=data.wireDiameter_mm||'';
+  document.getElementById(pfx+'_wireCount').value=data.wireCount||1;
+  document.getElementById(pfx+'_coilCount').value=data.coilCount||'';
+  document.getElementById(pfx+'_groupCount').value=(data.groups||[]).length||1;
+  const arr=getArr(type);arr.length=0;(data.groups||[]).forEach(g=>arr.push({...g}));renderGUI(type);
+}
+function setVoltage(v){
+  document.getElementById('f_voltage').value=v;
+  document.getElementById('vbtn220').classList.toggle('active',v==='220');
+  document.getElementById('vbtn380').classList.toggle('active',v==='380');
+}
+function checkCustomType(){document.getElementById('customTypeRow').style.display=document.getElementById('f_motorType').value==='موتور آخر'?'block':'none';}
+function toggleSection(h){h.classList.toggle('open');h.nextElementSibling.classList.toggle('open');}
+function getArr(t){return t==='run'?runGroups:t==='start'?startGroups:speedGroups;}
+function renderGroupsUI(t,n){
+  const a=getArr(t);n=parseInt(n)||0;
+  while(a.length<n) a.push({groupNumber:a.length+1,coilsInGroup:'',step:'',pitch:''});
+  while(a.length>n) a.pop();
+  renderGUI(t);
+}
+function addGroup(t){
+  const a=getArr(t);a.push({groupNumber:a.length+1,coilsInGroup:'',step:'',pitch:''});
+  const p=t==='run'?'rc':t==='start'?'sc':'sp';
+  document.getElementById(p+'_groupCount').value=a.length;renderGUI(t);
+}
+function renderGUI(t){
+  const a=getArr(t),c=document.getElementById(t+'_groups');
+  if(!a.length){c.innerHTML='';return;}
+  c.innerHTML=`<div class="group-row" style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:2px"><div>#</div><div>عدد الملفات</div><div>الخطوة</div><div>التقسيم</div><div class="hide-mobile">الترتيب</div><div></div></div>`+
+  a.map((g,i)=>`<div class="group-row" id="gr_${t}_${i}">
+    <div class="group-num">${i+1}</div>
+    <input type="number" min="0" placeholder="عدد" value="${g.coilsInGroup}" onchange="upd('${t}',${i},'coilsInGroup',this.value)">
+    <input type="number" min="0" step="0.5" placeholder="خطوة" value="${g.step}" onchange="upd('${t}',${i},'step',this.value)">
+    <input type="number" min="0" step="0.5" placeholder="تقسيم" value="${g.pitch}" onchange="upd('${t}',${i},'pitch',this.value)">
+    <input type="number" min="1" class="hide-mobile" value="${g.groupNumber}" onchange="upd('${t}',${i},'groupNumber',this.value)">
+    <button class="btn-icon" style="width:28px;height:28px;font-size:15px;border:none" onclick="rmGroup('${t}',${i})">×</button>
+  </div>`).join('');
+}
+function upd(t,i,k,v){const a=getArr(t);if(a[i])a[i][k]=k==='groupNumber'?parseInt(v):parseFloat(v)||v;}
+function rmGroup(t,i){
+  const a=getArr(t);a.splice(i,1);a.forEach((g,j)=>g.groupNumber=j+1);
+  const p=t==='run'?'rc':t==='start'?'sc':'sp';
+  document.getElementById(p+'_groupCount').value=a.length;renderGUI(t);
+}
+function readCoil(pfx,t){
+  const a=getArr(t);
+  document.getElementById(t+'_groups').querySelectorAll('.group-row[id]').forEach((row,i)=>{
+    const inp=row.querySelectorAll('input');
+    if(inp.length>=3&&a[i]){a[i].coilsInGroup=parseFloat(inp[0].value)||0;a[i].step=parseFloat(inp[1].value)||0;a[i].pitch=parseFloat(inp[2].value)||0;}
+  });
+  const wd=parseFloat(document.getElementById(pfx+'_wireDia').value);
+  if(!wd)return null;
+  return{wireDiameter_mm:wd,wireCount:parseInt(document.getElementById(pfx+'_wireCount').value)||1,coilCount:parseInt(document.getElementById(pfx+'_coilCount').value)||0,groups:a.map(g=>({...g}))};
+}
+
+async function saveMotor(){
+  const motorType=document.getElementById('f_motorType').value;
+  if(!motorType){showToast('⚠️ اختر نوع الموتور أولاً');return;}
+  const now=new Date().toISOString();
+  const runCoils=readCoil('rc','run'), startCoils=readCoil('sc','start');
+  const spC=readCoil('sp','speed');
+  const speedCoils=spC?{...spC,terminalCount:parseInt(document.getElementById('sp_termCount').value)||0}:null;
+  const bbWD=parseFloat(document.getElementById('bb_wireDia').value);
+  const bobbinData=bbWD?{wireDiameter_mm:bbWD,slotCount:parseInt(document.getElementById('bb_slotCount').value)||0,step:parseInt(document.getElementById('bb_step').value)||0,turnsCount:parseInt(document.getElementById('bb_turns').value)||0,marksCount:parseInt(document.getElementById('bb_marks').value)||0,windingDirection:document.getElementById('bb_direction').value,migrationNote:document.getElementById('bb_migration').value}:null;
+  const ironSlots=parseInt(document.getElementById('f_slotCount').value);
+  const ironData=ironSlots?{slotCount:ironSlots,coreLength_mm:parseFloat(document.getElementById('f_coreLength').value)||0,coreThickness_mm:parseFloat(document.getElementById('f_coreThick').value)||0,innerDiameter_mm:parseFloat(document.getElementById('f_innerDia').value)||0,slotWidth_mm:parseFloat(document.getElementById('f_slotWidth').value)||0,slotDepth_mm:parseFloat(document.getElementById('f_slotDepth').value)||0}:null;
+  const pkw=parseFloat(document.getElementById('f_power_kw').value);
+  const electricalData=pkw||parseFloat(document.getElementById('f_current').value)?{power_kw:pkw||0,power_hp:parseFloat(document.getElementById('f_power_hp').value)||0,current_amp:parseFloat(document.getElementById('f_current').value)||0,frequency_hz:parseInt(document.getElementById('f_frequency').value)||50,rpm:parseInt(document.getElementById('f_rpm').value)||0,wireType:document.getElementById('f_wireType').value}:null;
+  const record={motorType,motorTypeCustom:document.getElementById('f_motorTypeCustom').value,voltage:document.getElementById('f_voltage').value,notes:document.getElementById('f_notes').value,electricalData,ironData,runCoils,startCoils,speedCoils,bobbinData,updatedAt:now};
+  const isNew=!editingId;
+  if(!isNew){record.id=editingId;record.createdAt=(await dbGet(editingId)).createdAt||now;}
+  else record.createdAt=now;
+  const savedId=await dbPut(record);
+  histAdd(isNew?savedId:editingId, isNew?'add':'edit', record.motorTypeCustom||record.motorType||'موتور');
+  showToast(isNew?'✅ تم حفظ الموتور':'✅ تم تحديث الموتور');
+  showScreen('list');
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑬ DETAIL VIEW
+// ══════════════════════════════════════════════════════════
+async function showDetail(id){
+  const m=await dbGet(id);
+  const label=m.motorTypeCustom||m.motorType||'موتور';
+  document.getElementById('detailTitle').textContent=label;
+  document.getElementById('printTitle').textContent=label;
+  document.getElementById('printDate').textContent=new Date().toLocaleString('ar-EG');
+  document.getElementById('detailContent').innerHTML=buildDetail(m);
+  const hist=await histGetByMotor(m.id);
+  const hw=document.getElementById('motorHistoryWrap');
+  if(hist.length){
+    hw.innerHTML=`<div class="detail-section"><h3>📋 سجل التعديلات</h3><div class="history-list">${[...hist].reverse().map(h=>`<div class="history-item">
+      <span class="history-icon">${h.action==='add'?'➕':h.action==='edit'?'✏️':'🗑️'}</span>
+      <div class="history-info"><span class="log-chip ${h.action==='add'?'log-add':h.action==='edit'?'log-edit':'log-del'}">${h.action==='add'?'إضافة':h.action==='edit'?'تعديل':'حذف'}</span> ${h.label}</div>
+      <span class="history-time">${new Date(h.ts).toLocaleString('ar-EG')}</span>
+    </div>`).join('')}</div></div>`;
+  } else hw.innerHTML='';
+  showScreen('detail');
+}
+
+function di(lbl,val,unit=''){
+  if(!val&&val!==0) return '';
+  return `<div class="detail-item"><div class="di-label">${lbl}</div><div class="di-val">${val}${unit?' '+unit:''}</div></div>`;
+}
+
+function coilBlock(data,title,color){
+  if(!data) return '';
+  let h=`<div class="detail-section"><h3 style="color:${color}">${title}</h3><div class="detail-grid">
+    ${di('قطر السلك',data.wireDiameter_mm,'مم')}${di('عدد الأسلاك',data.wireCount)}
+    ${di('عدد الملفات',data.coilCount)}${di('عدد السريات',data.groups?.length)}
+    ${data.terminalCount?di('عدد الأطراف',data.terminalCount):''}
+    ${di('مساحة المقطع',wireArea(data.wireDiameter_mm,data.wireCount),'مم²')}
+  </div>`;
+  if(data.groups?.length) h+=`<table class="groups-table"><thead><tr><th>#</th><th>عدد الملفات</th><th>الخطوة</th><th>التقسيم</th></tr></thead><tbody>${data.groups.map(g=>`<tr><td>${g.groupNumber}</td><td>${g.coilsInGroup||'-'}</td><td>${g.step||'-'}</td><td>${g.pitch||'-'}</td></tr>`).join('')}</tbody></table>`;
+  return h+'</div>';
+}
+
+function buildDetail(m){
+  let h='';
+  h+=`<div class="detail-section"><h3>🔧 المعلومات الأساسية</h3><div class="detail-grid">
+    ${di('نوع الموتور',m.motorType)}${m.motorTypeCustom?di('الاسم التفصيلي',m.motorTypeCustom):''}
+    ${di('الجهد',m.voltage,'فولت')}${m.createdAt?di('تاريخ الإضافة',new Date(m.createdAt).toLocaleDateString('ar-EG')):''}
+    ${m.updatedAt?di('آخر تعديل',new Date(m.updatedAt).toLocaleString('ar-EG')):''}
+  </div>${m.notes?`<div style="margin-top:7px;font-size:12px;color:var(--text2);background:var(--surface2);padding:8px 10px;border-radius:var(--radius-sm);line-height:1.5">${m.notes}</div>`:''}</div>`;
+
+  if(m.electricalData){const ed=m.electricalData;
+    h+=`<div class="detail-section"><h3>⚡ البيانات الكهربائية</h3><div class="detail-grid">
+      ${di('القدرة',ed.power_kw,'كيلوواط')}${di('القدرة',ed.power_hp,'حصان')}
+      ${di('التيار',ed.current_amp,'أمبير')}${di('التردد',ed.frequency_hz,'هرتز')}
+      ${di('السرعة',ed.rpm,'RPM')}${di('نوع السلك',ed.wireType)}
+    </div></div>`;}
+
+  if(m.ironData){const ir=m.ironData;
+    const slotArea=ir.slotWidth_mm&&ir.slotDepth_mm?+(ir.slotWidth_mm*ir.slotDepth_mm).toFixed(2):null;
+    const fill=m.runCoils&&m.startCoils?slotFillRatio(ir.slotWidth_mm,ir.slotDepth_mm,m.runCoils.wireDiameter_mm,m.runCoils.wireCount,m.startCoils.wireDiameter_mm,m.startCoils.wireCount):null;
+    const fillColor=fill?(fill>80?'var(--danger)':fill<35?'var(--warn)':'var(--accent)'):'';
+    h+=`<div class="detail-section"><h3>🔩 معلومات الحديد</h3><div class="detail-grid">
+      ${di('عدد المجاري',ir.slotCount)}${di('طول المجرة',ir.coreLength_mm,'مم')}
+      ${di('سمك الحديد',ir.coreThickness_mm,'مم')}${di('القطر الداخلي',ir.innerDiameter_mm,'مم')}
+      ${di('عرض المجرى',ir.slotWidth_mm,'مم')}${di('عمق المجرى',ir.slotDepth_mm,'مم')}
+      ${slotArea?di('مساحة المجرى',slotArea,'مم²'):''}
+      ${fill!==null?`<div class="detail-item"><div class="di-label">نسبة ملء المجرى</div><div class="di-val" style="color:${fillColor}">${fill}%</div></div>`:''}
+    </div></div>`;}
+
+  h+=coilBlock(m.runCoils,'🟢 ملفات التشغيل','var(--accent)');
+  h+=coilBlock(m.startCoils,'🔵 ملفات التقويم','var(--primary)');
+  h+=coilBlock(m.speedCoils,'🟠 ملفات السرعات','var(--warn)');
+
+  if(m.bobbinData){const bb=m.bobbinData;
+    h+=`<div class="detail-section"><h3>🧵 معلومات البوبينة</h3><div class="detail-grid">
+      ${di('قطر السلك',bb.wireDiameter_mm,'مم')}${di('عدد المجاري',bb.slotCount)}
+      ${di('الخطوة',bb.step)}${di('عدد اللفات',bb.turnsCount)}
+      ${di('عدد العلامات',bb.marksCount)}${di('اتجاه اللف',bb.windingDirection)}
+    </div>${bb.migrationNote?`<div style="margin-top:6px;font-size:12px;color:var(--text2);background:var(--surface2);padding:7px 9px;border-radius:var(--radius-sm)">📝 ${bb.migrationNote}</div>`:''}</div>`;}
+
+  if(m.runCoils||m.startCoils){
+    const items=[];
+    if(m.runCoils) items.push({lbl:'مساحة مقطع سلك التشغيل',val:wireArea(m.runCoils.wireDiameter_mm,m.runCoils.wireCount),unit:'مم²'});
+    if(m.startCoils) items.push({lbl:'مساحة مقطع سلك التقويم',val:wireArea(m.startCoils.wireDiameter_mm,m.startCoils.wireCount),unit:'مم²'});
+    if(m.runCoils&&m.startCoils) items.push({lbl:'نسبة التشغيل / التقويم',val:+(m.runCoils.wireDiameter_mm/m.startCoils.wireDiameter_mm).toFixed(3),unit:''});
+    if(items.length) h+=`<div class="calc-box"><h3>🔢 الحسابات</h3><div class="calc-grid">${items.map(i=>`<div class="calc-item"><div class="c-lbl">${i.lbl}</div><div><span class="c-val">${i.val}</span><span class="c-unit"> ${i.unit}</span></div></div>`).join('')}</div></div>`;
+  }
+  h+=`<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px" class="no-print">
+    <button class="btn btn-outline btn-sm" onclick="showFormEdit(${m.id})">✏️ تعديل</button>
+    <button class="btn btn-outline btn-sm" onclick="duplicateMotor(${m.id})">📋 نسخ</button>
+    <button class="btn btn-danger btn-sm" onclick="confirmDelete(${m.id},'${(m.motorTypeCustom||m.motorType||'الموتور').replace(/'/g,'')}')">🗑️ حذف</button>
+  </div>`;
+  return h;
+}
+
+// PDF export via print iframe
+function exportDetailPDF(){
+  const title=document.getElementById('detailTitle').textContent;
+  const content=document.getElementById('detailContent').innerHTML;
+  const iframe=document.createElement('iframe');
+  iframe.style.cssText='position:fixed;top:-9999px;left:-9999px;width:794px;height:1123px';
+  document.body.appendChild(iframe);
+  const doc=iframe.contentDocument;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>${title}</title><style>
+    body{font-family:'Segoe UI',Arial,sans-serif;padding:24px;color:#111;font-size:13px}
+    h2{text-align:center;padding-bottom:10px;border-bottom:2px solid #333;margin-bottom:14px;font-size:18px}
+    p.sub{text-align:center;font-size:11px;color:#666;margin-bottom:16px}
+    .detail-section{margin-bottom:14px}
+    .detail-section h3{font-size:12px;font-weight:700;color:#1a56db;border-bottom:1.5px solid #dbeafe;padding-bottom:3px;margin-bottom:7px}
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+    .detail-item{background:#f5f5f5;border-radius:4px;padding:6px 8px;border:1px solid #ddd}
+    .di-label{font-size:10px;color:#999}.di-val{font-size:12px;font-weight:700}
+    table{width:100%;border-collapse:collapse;font-size:11px;margin-top:5px}
+    th{background:#1a56db;color:#fff;padding:4px 6px;text-align:right;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    td{padding:4px 6px;border-bottom:1px solid #ddd}
+    tr:nth-child(even) td{background:#f9f9f9}
+    .calc-box{background:#e3f9f0;border:1px solid #a7f3d0;border-radius:6px;padding:10px;margin-top:8px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .calc-box h3{color:#0e9f6e;font-size:11px;margin-bottom:6px}
+    .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+    .calc-item{background:#fff;border-radius:4px;padding:5px 8px;border:1px solid #a7f3d0}
+    .c-lbl{font-size:10px;color:#999}.c-val{font-size:13px;font-weight:700;color:#0e9f6e}.c-unit{font-size:10px}
+    button,.no-print,.motor-actions{display:none!important}
+  </style></head><body>
+  <h2>⚡ ${title}</h2>
+  <p class="sub">تاريخ التصدير: ${new Date().toLocaleString('ar-EG')} — مدير لف المحركات v3</p>
+  ${content}
+  </body></html>`);
+  doc.close();
+  setTimeout(()=>{iframe.contentWindow.print();setTimeout(()=>document.body.removeChild(iframe),1200);},400);
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑭ HISTORY (global)
+// ══════════════════════════════════════════════════════════
+async function renderGlobalHistory(){
+  const hist=await histGetAll();
+  const wrap=document.getElementById('globalHistoryWrap');
+  if(!hist.length){wrap.innerHTML='<p style="font-size:12px;color:var(--text3)">لا يوجد سجل بعد</p>';return;}
+  wrap.innerHTML=`<div class="history-list">${[...hist].reverse().slice(0,25).map(h=>`<div class="history-item">
+    <span class="history-icon">${h.action==='add'?'➕':h.action==='edit'?'✏️':'🗑️'}</span>
+    <div class="history-info"><span class="log-chip ${h.action==='add'?'log-add':h.action==='edit'?'log-edit':'log-del'}">${h.action==='add'?'إضافة':h.action==='edit'?'تعديل':'حذف'}</span> ${h.label}</div>
+    <span class="history-time">${new Date(h.ts).toLocaleDateString('ar-EG')}</span>
+  </div>`).join('')}</div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑮ DUPLICATE / DELETE
+// ══════════════════════════════════════════════════════════
+async function duplicateMotor(id){
+  const m=await dbGet(id);delete m.id;
+  m.motorTypeCustom=(m.motorTypeCustom||m.motorType||'')+' (نسخة)';
+  m.createdAt=m.updatedAt=new Date().toISOString();
+  const newId=await dbPut(m);
+  histAdd(newId,'add',m.motorTypeCustom);
+  showToast('📋 تم نسخ الموتور');renderList();
+}
+let _delId=null;
+function confirmDelete(id,name){
+  _delId=id;
+  document.getElementById('confirmTitle').textContent='تأكيد الحذف';
+  document.getElementById('confirmMsg').textContent=`هل تريد حذف "${name}"؟ لا يمكن التراجع.`;
+  document.getElementById('confirmModal').classList.add('open');
+}
+async function confirmAction(){
+  if(_delId){
+    const m=await dbGet(_delId);
+    histAdd(_delId,'del',m?.motorTypeCustom||m?.motorType||'موتور #'+_delId);
+    await dbDelete(_delId);_delId=null;closeModal('confirmModal');
+    showToast('🗑️ تم الحذف');
+    if(currentScreen==='detail') showScreen('list'); else renderList();
+  }
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ══════════════════════════════════════════════════════════
+// ⑯ BACKUP
+// ══════════════════════════════════════════════════════════
+async function renderBackupStats(){
+  const motors=await dbGetAll(), hist=await histGetAll();
+  const last=motors.length?new Date(Math.max(...motors.map(m=>new Date(m.updatedAt||m.createdAt)))).toLocaleString('ar-EG'):'لا يوجد';
+  document.getElementById('backupStats').innerHTML=`
+    <p>• إجمالي المحركات: <strong>${motors.length}</strong></p>
+    <p>• مكتملة (تشغيل+تقويم+حديد): <strong>${motors.filter(m=>m.runCoils&&m.startCoils&&m.ironData).length}</strong></p>
+    <p>• إجمالي إدخالات السجل: <strong>${hist.length}</strong></p>
+    <p>• آخر تحديث: <strong>${last}</strong></p>
+    <p>• إصدار قاعدة البيانات: <strong>v${DB_VERSION}</strong></p>`;
+}
+async function exportBackup(){
+  const motors=await dbGetAll(), hist=await histGetAll();
+  const blob=new Blob([JSON.stringify({version:DB_VERSION,appVersion:'3.0',exportedAt:new Date().toISOString(),motors,history:hist},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`motor-v3-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();URL.revokeObjectURL(url);showToast('✅ تم التصدير');
+}
+async function importBackup(event){
+  const file=event.target.files[0];if(!file)return;
+  try{
+    const data=JSON.parse(await file.text());
+    const motors=data.motors||(Array.isArray(data)?data:[]);
+    if(!motors.length){showToast('⚠️ لا يوجد بيانات');return;}
+    let c=0;for(const m of motors){delete m.id;await dbPut(m);c++;}
+    showToast(`✅ تم استيراد ${c} موتور`);renderList();
+  }catch{showToast('❌ خطأ في الملف');}
+  event.target.value='';
+}
+async function clearAllData(){
+  if(!confirm('⚠️ سيتم حذف جميع البيانات نهائياً. هل أنت متأكد؟'))return;
+  await dbClear();showToast('🗑️ تم الحذف');renderBackupStats();
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑰ TOAST / PRINT
+// ══════════════════════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+function showPrint(){
+  if(currentScreen==='detail') window.print();
+  else showToast('افتح موتور أولاً ثم اضغط 🖨️');
+}
+
+// ══════════════════════════════════════════════════════════
+// ⑱ INIT
+// ══════════════════════════════════════════════════════════
+applyTheme();
+openDB().then(()=>{
+  renderGroupsUI('run',1);renderGroupsUI('start',1);renderGroupsUI('speed',0);
+  renderList();
+}).catch(err=>{
+  document.getElementById('motorList').innerHTML='<div class="empty">❌ خطأ في قاعدة البيانات: '+err.message+'</div>';
+});
+</script>
+</body>
+</html>
+    
